@@ -224,26 +224,33 @@ Future<ui.Image> blurHashDecodeImage({
   double punch = 1.0,
   BlurHashOptimizationMode optimizationMode = BlurHashOptimizationMode.standard,
 }) async {
-  _validateBlurHash(blurHash);
-
   final completer = Completer<ui.Image>();
 
-  final Uint8List pixels;
-  if (optimizationMode != BlurHashOptimizationMode.none) {
-    pixels = await optimizedBlurHashDecode(
-      blurHash: blurHash,
-      width: width,
-      height: height,
-      punch: punch,
-      optimizationMode: optimizationMode,
-    );
-  } else {
-    pixels = await blurHashDecode(
-      blurHash: blurHash,
-      width: width,
-      height: height,
-      punch: punch,
-    );
+  Uint8List pixels;
+  try {
+    _validateBlurHash(blurHash);
+
+    if (optimizationMode != BlurHashOptimizationMode.none) {
+      pixels = await optimizedBlurHashDecode(
+        blurHash: blurHash,
+        width: width,
+        height: height,
+        punch: punch,
+        optimizationMode: optimizationMode,
+      );
+    } else {
+      pixels = await blurHashDecode(
+        blurHash: blurHash,
+        width: width,
+        height: height,
+        punch: punch,
+      );
+    }
+  } catch (error) {
+    // Defensive fallback: a malformed blurHash string must never crash image
+    // resolution. Fall back to a plain white placeholder instead.
+    debugPrint('flutter_blurhash: invalid blurHash "$blurHash" ($error), using placeholder');
+    pixels = _placeholderPixels(width, height);
   }
 
   if (kIsWeb) {
@@ -255,6 +262,9 @@ Future<ui.Image> blurHashDecodeImage({
 
   return completer.future;
 }
+
+Uint8List _placeholderPixels(int width, int height) =>
+    Uint8List(width * height * 4)..fillRange(0, width * height * 4, 255);
 
 Future<ui.Image> _createBmp(Uint8List pixels, int width, int height) async {
   int size = (width * height * 4) + 122;
