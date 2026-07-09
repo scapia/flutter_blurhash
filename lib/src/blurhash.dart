@@ -263,8 +263,10 @@ Future<ui.Image> blurHashDecodeImage({
   return completer.future;
 }
 
-Uint8List _placeholderPixels(int width, int height) =>
-    Uint8List(width * height * 4)..fillRange(0, width * height * 4, 255);
+Uint8List _placeholderPixels(int width, int height) {
+  final size = width * height * 4;
+  return Uint8List(size)..fillRange(0, size, 255);
+}
 
 Future<ui.Image> _createBmp(Uint8List pixels, int width, int height) async {
   int size = (width * height * 4) + 122;
