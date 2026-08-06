@@ -12,7 +12,7 @@ class BlurHash extends StatefulWidget {
   const BlurHash({
     required this.hash,
     Key? key,
-    this.color = Colors.blueGrey,
+    this.color = Colors.transparent,
     this.imageFit = BoxFit.fill,
     this.decodingWidth = _DEFAULT_SIZE,
     this.decodingHeight = _DEFAULT_SIZE,
